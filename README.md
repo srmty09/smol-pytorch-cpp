@@ -43,7 +43,7 @@ A lightweight, header-only C++ deep learning library inspired by PyTorch, design
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/srmty09/smol-pytorch-cpp
 cd smol-pytorch-cpp
 
 # Create build directory
