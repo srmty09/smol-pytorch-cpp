@@ -42,22 +42,16 @@ A lightweight, header-only C++ deep learning library inspired by PyTorch, design
 ### Build Instructions
 
 ```bash
-# Clone the repository
 git clone https://github.com/srmty09/smol-pytorch-cpp
 cd smol-pytorch-cpp
-
-# Create build directory
-mkdir build && cd build
-
-# Configure with CMake
+mkdir build
+cd build
 cmake ..
-
-# Build the project
 make
-
-# Run the test suite
 ./smolpytorch
 ```
+
+**Note**: Make sure you're in the project root directory when running these commands. If the `build` directory already exists, you can skip the `mkdir build` step.
 
 ## Quick Start
 
