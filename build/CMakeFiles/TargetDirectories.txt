@@ -1,3 +1,0 @@
-/home/smruti/Desktop/git repos/smol-pytorch-cpp/build/CMakeFiles/smolpytorch.dir
-/home/smruti/Desktop/git repos/smol-pytorch-cpp/build/CMakeFiles/edit_cache.dir
-/home/smruti/Desktop/git repos/smol-pytorch-cpp/build/CMakeFiles/rebuild_cache.dir
