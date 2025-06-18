@@ -39,6 +39,51 @@ A lightweight, header-only C++ deep learning library inspired by PyTorch, design
 - CMake 3.10 or higher
 - Make or Ninja build system
 
+### Installing CMake
+
+#### Ubuntu/Debian:
+```bash
+sudo apt update
+sudo apt install cmake build-essential
+```
+
+#### CentOS/RHEL/Fedora:
+```bash
+# CentOS/RHEL
+sudo yum install cmake gcc-c++
+
+# Fedora
+sudo dnf install cmake gcc-c++
+```
+
+#### macOS:
+```bash
+# Using Homebrew
+brew install cmake
+
+# Using MacPorts
+sudo port install cmake
+```
+
+#### Windows:
+```bash
+# Using Chocolatey
+choco install cmake
+
+# Using vcpkg
+vcpkg install cmake
+```
+
+#### From Source (if needed):
+```bash
+wget https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1.tar.gz
+tar -xzf cmake-3.28.1.tar.gz
+cd cmake-3.28.1
+./bootstrap
+make
+sudo make install
+```
+
 ### Build Instructions
 
 ```bash
@@ -52,6 +97,30 @@ make
 ```
 
 **Note**: Make sure you're in the project root directory when running these commands. If the `build` directory already exists, you can skip the `mkdir build` step.
+
+### Testing Changes
+
+After making changes to the source code (like `main.cpp`, `src/tensor.cpp`, or `include/tensor.hpp`), you need to rebuild:
+
+```bash
+# From the build directory
+make
+
+# Or if you want to clean and rebuild from scratch
+make clean
+make
+
+# Run the tests
+./smolpytorch
+```
+
+**Quick Test Cycle:**
+```bash
+# Edit your files, then:
+make && ./smolpytorch
+```
+
+This will rebuild and run the tests in one command. If the build fails, you'll see the error messages.
 
 ## Quick Start
 
