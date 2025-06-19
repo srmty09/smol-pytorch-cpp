@@ -36,7 +36,10 @@ tensor tensor:: add(tensor b){
         res.push_back(data_[i]+b.data_[i]);
     }
     tensor res_t(res,shape_);
-    res_t.op_="+";
+    res_t.op_ = "+";
+
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(std::make_shared<tensor>(b));
     return res_t;
 }
 
@@ -48,6 +51,9 @@ tensor tensor::sub(tensor b){
     }
     tensor res_t(res,shape_);
     res_t.op_="-";
+
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(std::make_shared<tensor>(b));
     return res_t;
 }
 
@@ -60,6 +66,9 @@ tensor tensor::mul(tensor b){
     }
     tensor res_t(res,shape_);
     res_t.op_="*";
+
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(std::make_shared<tensor>(b));
     return res_t;
 }
 
@@ -76,61 +85,85 @@ tensor tensor::div(tensor b){
     }
     tensor res_t(res,shape_);
     res_t.op_="/";
+
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(std::make_shared<tensor>(b));
     return res_t;
 }
 
 //relu
-void tensor::relu(){
+tensor tensor::relu(){
+    vector<double> res;
     for(ll i=0;i<size_;i++){
         if(data_[i]>0){
-            continue;
+            res.push_back(data_[i]);
         }
         else{
-            data_[i]=0;
+            res.push_back(0);
         }
     }
-    op_="relu";
+    tensor res_t(res,shape_);
+    res_t.op_="relu";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
 }
 
 //abs
-void tensor::abs(){
+tensor tensor::abs(){
+    vector<double> res;
     for(ll i=0;i<size_;i++){
         if(data_[i]>0){
-            continue;
+            res.push_back(data_[i]);
         }
         else{
-            data_[i]=-(data_[i]);
+            res.push_back(-data_[i]);
         }
     }
-    op_="abs";
+    tensor res_t(res,shape_);
+    res_t.op_="abs";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
 }
 
 //power
-void tensor::pow(ll power){
+tensor tensor::pow(ll power){
+    vector<double> res;
     for(ll i=0;i<size_;i++){
-        data_[i]=std::pow(data_[i],power);
+        res.push_back(std::pow(data_[i],power));
     }
-    op_="pow";
+    tensor res_t(res,shape_);
+    res_t.op_="pow";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
 }
 
 //exp
-void tensor::exp(){
+tensor tensor::exp(){
+    vector<double> res;
     for(ll i=0;i<size_;i++){
-        data_[i]=std::exp(data_[i]);
+        res.push_back(std::exp(data_[i]));
     }
-    op_="exp";
+    tensor res_t(res,shape_);
+    res_t.op_="exp";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
 }
 
 //sqrt
-void tensor::sqrt(){
+tensor tensor::sqrt(){
+    vector<double> res;
     for(ll i=0;i<size_;i++){
         if(data_[i]<0){
             cout<<"no sqrt of negative number"<<endl;
-            continue;
+            res.push_back(data_[i]);
+        } else {
+            res.push_back(std::sqrt(data_[i]));
         }
-        data_[i]=std::sqrt(data_[i]);
     }
-    op_="sqrt";
+    tensor res_t(res,shape_);
+    res_t.op_="sqrt";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
 }
 
 //sum of all elements
@@ -180,32 +213,68 @@ double tensor::min(){
 }
 
 //negattion
-void tensor::neg(){
+tensor tensor::neg(){
+    vector<double> res;
     for(ll i=0;i<size_;i++){
-        data_[i]=-data_[i];
-    } 
-    op_="neg";
+        res.push_back(-data_[i]);
+    }
+    tensor res_t(res,shape_);
+    res_t.op_="neg";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
 }
+
 //scalar add
-void tensor::scalar_add(double num){
+tensor tensor::scalar_add(double num){
+    vector<double> res;
     for(ll i=0;i<size_;i++){
-        data_[i]=num+data_[i];
-    } 
-    op_="scalar_add";
+        res.push_back(num + data_[i]);
+    }
+    tensor res_t(res,shape_);
+    res_t.op_="scalar_add";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
 }
+
 //scalar substraction
-void tensor::scalar_sub(double num){
+tensor tensor::scalar_sub(double num){
+    vector<double> res;
     for(ll i=0;i<size_;i++){
-        data_[i]=num-data_[i];
-    } 
-    op_="scalar_sub";
+        res.push_back(num - data_[i]);
+    }
+    tensor res_t(res,shape_);
+    res_t.op_="scalar_sub";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
 }
+
 //scalar div
-void tensor::scalar_div(double num){
+tensor tensor::scalar_div(double num){
+    vector<double> res;
     for(ll i=0;i<size_;i++){
-        data_[i]=num/data_[i];
-    } 
-    op_="scalar_div";
+        if(data_[i]!=0){
+            res.push_back(num/data_[i]);
+        }
+        else{
+            res.push_back(1e308);
+        }
+    }
+    tensor res_t(res,shape_);
+    res_t.op_="scalar_div";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
+}
+
+//scalar mul
+tensor tensor::scalar_mul(double num){
+    vector<double> res;
+    for(ll i=0;i<size_;i++){
+        res.push_back(num * data_[i]);
+    }
+    tensor res_t(res,shape_);
+    res_t.op_="scalar_mul";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
 }
 
 //copy 
@@ -219,24 +288,29 @@ tensor tensor::copy(){
 }
 
 //sigmoid
-void tensor::sigmoid(){
-    this->neg();
-    this->exp();
-    this->scalar_add(1);
-    this->scalar_div(1);
-    op_="sigmoid";
+tensor tensor::sigmoid(){
+    tensor temp = this->neg();
+    temp = temp.exp();
+    temp = temp.scalar_add(1);
+    temp = temp.scalar_div(1);
+    temp.op_="sigmoid";
+    return temp;
 }
 
 //tanh
-void tensor::tanh(){
+tensor tensor::tanh(){
+    vector<double> res;
     for(ll i = 0; i < size_; i++){
-        data_[i] = std::tanh(data_[i]);
+        res.push_back(std::tanh(data_[i]));
     }
-    op_="tanh";
+    tensor res_t(res,shape_);
+    res_t.op_="tanh";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
 }
 
 //get data
-vector<double> tensor::get_data(){
+std::vector<double> tensor::get_data(){
     vector<double> datal;
     for(ll i=0;i<size_;i++){
         datal.push_back(data_[i]);
@@ -245,8 +319,7 @@ vector<double> tensor::get_data(){
 }
 
 // softmax
-void tensor::softmax(){
-
+tensor tensor::softmax(){
     double max_val = data_[0];
     for(ll i = 1; i < size_; i++){
         if(data_[i] > max_val){
@@ -254,7 +327,6 @@ void tensor::softmax(){
         }
     }
     
-
     vector<double> exp_data;
     double sum = 0.0;
     for(ll i = 0; i < size_; i++){
@@ -263,9 +335,13 @@ void tensor::softmax(){
         sum += exp_val;
     }
     
-    // Normalize by sum
+    vector<double> res;
     for(ll i = 0; i < size_; i++){
-        data_[i] = exp_data[i] / sum;
+        res.push_back(exp_data[i] / sum);
     }
-    op_="softmax";   
+    
+    tensor res_t(res,shape_);
+    res_t.op_="softmax";
+    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    return res_t;
 }
