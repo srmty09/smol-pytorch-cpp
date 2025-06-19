@@ -8,6 +8,8 @@ public:
     std::vector<double> grad_;
     ll size_;
     std::vector<ll> stride_;
+    std::string op_="";
+
     tensor();
     tensor(std::vector<double> d,std::vector<ll> s, bool need_grad);
     tensor add(tensor b);

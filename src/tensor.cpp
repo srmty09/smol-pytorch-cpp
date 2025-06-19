@@ -36,6 +36,7 @@ tensor tensor:: add(tensor b){
         res.push_back(data_[i]+b.data_[i]);
     }
     tensor res_t(res,shape_);
+    res_t.op_="+";
     return res_t;
 }
 
@@ -46,6 +47,7 @@ tensor tensor::sub(tensor b){
         res.push_back(data_[i]-b.data_[i]);
     }
     tensor res_t(res,shape_);
+    res_t.op_="-";
     return res_t;
 }
 
@@ -57,6 +59,7 @@ tensor tensor::mul(tensor b){
         res.push_back(data_[i]*b.data_[i]);
     }
     tensor res_t(res,shape_);
+    res_t.op_="*";
     return res_t;
 }
 
@@ -72,6 +75,7 @@ tensor tensor::div(tensor b){
         }
     }
     tensor res_t(res,shape_);
+    res_t.op_="/";
     return res_t;
 }
 
@@ -85,6 +89,7 @@ void tensor::relu(){
             data_[i]=0;
         }
     }
+    op_="relu";
 }
 
 //abs
@@ -97,6 +102,7 @@ void tensor::abs(){
             data_[i]=-(data_[i]);
         }
     }
+    op_="abs";
 }
 
 //power
@@ -104,6 +110,7 @@ void tensor::pow(ll power){
     for(ll i=0;i<size_;i++){
         data_[i]=std::pow(data_[i],power);
     }
+    op_="pow";
 }
 
 //exp
@@ -111,6 +118,7 @@ void tensor::exp(){
     for(ll i=0;i<size_;i++){
         data_[i]=std::exp(data_[i]);
     }
+    op_="exp";
 }
 
 //sqrt
@@ -122,6 +130,7 @@ void tensor::sqrt(){
         }
         data_[i]=std::sqrt(data_[i]);
     }
+    op_="sqrt";
 }
 
 //sum of all elements
@@ -175,24 +184,28 @@ void tensor::neg(){
     for(ll i=0;i<size_;i++){
         data_[i]=-data_[i];
     } 
+    op_="neg";
 }
-//scalar substraction
+//scalar add
 void tensor::scalar_add(double num){
     for(ll i=0;i<size_;i++){
         data_[i]=num+data_[i];
     } 
+    op_="scalar_add";
 }
 //scalar substraction
 void tensor::scalar_sub(double num){
     for(ll i=0;i<size_;i++){
         data_[i]=num-data_[i];
     } 
+    op_="scalar_sub";
 }
-//scalar substraction
+//scalar div
 void tensor::scalar_div(double num){
     for(ll i=0;i<size_;i++){
         data_[i]=num/data_[i];
     } 
+    op_="scalar_div";
 }
 
 //copy 
@@ -201,6 +214,7 @@ tensor tensor::copy(){
     for(ll i=0;i<size_;i++){
         copy_data.push_back(data_[i]);
     }
+    op_="copy";    
     return tensor(copy_data,shape_,true);
 }
 
@@ -210,6 +224,7 @@ void tensor::sigmoid(){
     this->exp();
     this->scalar_add(1);
     this->scalar_div(1);
+    op_="sigmoid";
 }
 
 //tanh
@@ -217,6 +232,7 @@ void tensor::tanh(){
     for(ll i = 0; i < size_; i++){
         data_[i] = std::tanh(data_[i]);
     }
+    op_="tanh";
 }
 
 //get data
@@ -230,7 +246,7 @@ vector<double> tensor::get_data(){
 
 // softmax
 void tensor::softmax(){
-    // Find the maximum value to prevent overflow
+
     double max_val = data_[0];
     for(ll i = 1; i < size_; i++){
         if(data_[i] > max_val){
@@ -238,7 +254,7 @@ void tensor::softmax(){
         }
     }
     
-    // Compute exp(x - max_val) to prevent overflow
+
     vector<double> exp_data;
     double sum = 0.0;
     for(ll i = 0; i < size_; i++){
@@ -251,4 +267,5 @@ void tensor::softmax(){
     for(ll i = 0; i < size_; i++){
         data_[i] = exp_data[i] / sum;
     }
+    op_="softmax";   
 }
