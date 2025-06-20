@@ -65,5 +65,27 @@ void backward::backward_(tensor& b){
                 }
             }
         }
+        if(b.op_=="abs"){
+            for(ll i=0;i<parents[0]->grad_.size();i++){
+                if(parents[0]->data_[i]>0){
+                        parents[0]->grad_[i]+=b.grad_[i];
+                }
+                else{
+                    parents[0]->grad_[i]+=-b.grad_[i];
+                }
+            }
+        }
+        if(b.op_=="exp"){
+            for(ll i=0;i<parents[0]->grad_.size();i++){
+                parents[0]->grad_[i]+=b.grad_[i]*std::exp(parents[0]->data_[i]);
+            }
+        }
+
+        if(b.op_=="sqrt"){
+            for(ll i=0;i<parents[0]->grad_.size();i++){
+                parents[0]->grad_[i]+=b.grad_[i]*((1/2)*(std::pow(parents[0]->data_[i],(-3/2))));
+            }
+        }        
+        
     }
 }
