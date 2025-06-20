@@ -14,3 +14,19 @@ vector<ll> calculating_stride(vector<ll> shape){
     cout<<"stride calculation successful"<<endl;
     return stride_vec;
 }
+
+
+//set all elements in a double vector to a number 
+void set_all(vector<double>& a, double toset){
+    for(ll i=0;i<a.size();i++){
+        a[i]+=toset;
+    }
+}
+
+
+void grad_flow_for_add(vector<double> &a,vector<double> &b){
+    for (ll i=0; i<a.size();i++){
+        a[i]+=b[i];
+    }
+}
+

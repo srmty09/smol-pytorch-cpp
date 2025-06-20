@@ -16,5 +16,6 @@ include_directories(helper)
 add_executable(smolpytorch
     main.cpp
     src/tensor.cpp
+    src/autograd.cpp
     helper/helper_functions.cpp
 )

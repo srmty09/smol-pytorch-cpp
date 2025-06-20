@@ -12,7 +12,7 @@ tensor::tensor(){
 
 
 // tensor creation 
-tensor::tensor(vector<double> d,vector<ll> s,bool nd=false):data_(d),shape_(s){
+tensor::tensor(vector<double> d,vector<ll> s,bool nd=true):data_(d),shape_(s){
     ll total_element=1;
     for(ll i=0;i<s.size();i++) total_element*=shape_[i];
     size_=total_element;
@@ -30,50 +30,47 @@ tensor::tensor(vector<double> d,vector<ll> s,bool nd=false):data_(d),shape_(s){
 }
 
 //element wise addition
-tensor tensor:: add(tensor b){
+tensor tensor::add(tensor& b){
     vector<double> res;
     for(ll i=0;i<size_;i++){
         res.push_back(data_[i]+b.data_[i]);
     }
     tensor res_t(res,shape_);
     res_t.op_ = "+";
-
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
-    res_t.parent_.push_back(std::make_shared<tensor>(b));
+    res_t.parent_.push_back(this);
+    res_t.parent_.push_back(&b);
     return res_t;
 }
 
 //element wise substraction
-tensor tensor::sub(tensor b){
+tensor tensor::sub(tensor& b){
     vector<double> res;
     for(ll i=0;i<size_;i++){
         res.push_back(data_[i]-b.data_[i]);
     }
     tensor res_t(res,shape_);
     res_t.op_="-";
-
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
-    res_t.parent_.push_back(std::make_shared<tensor>(b));
+    res_t.parent_.push_back(this);
+    res_t.parent_.push_back(&b);
     return res_t;
 }
 
 
 //element wise multiplication
-tensor tensor::mul(tensor b){
+tensor tensor::mul(tensor& b){
     vector<double> res;
     for(ll i=0;i<size_;i++){
         res.push_back(data_[i]*b.data_[i]);
     }
     tensor res_t(res,shape_);
     res_t.op_="*";
-
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
-    res_t.parent_.push_back(std::make_shared<tensor>(b));
+    res_t.parent_.push_back(this);
+    res_t.parent_.push_back(&b);
     return res_t;
 }
 
 //element wise divison
-tensor tensor::div(tensor b){
+tensor tensor::div(tensor& b){
     vector<double> res;
     for(ll i=0;i<size_;i++){
         if(b.data_[i]==0){
@@ -85,9 +82,8 @@ tensor tensor::div(tensor b){
     }
     tensor res_t(res,shape_);
     res_t.op_="/";
-
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
-    res_t.parent_.push_back(std::make_shared<tensor>(b));
+    res_t.parent_.push_back(this);
+    res_t.parent_.push_back(&b);
     return res_t;
 }
 
@@ -104,7 +100,7 @@ tensor tensor::relu(){
     }
     tensor res_t(res,shape_);
     res_t.op_="relu";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);  // Store pointer to original tensor
     return res_t;
 }
 
@@ -121,7 +117,7 @@ tensor tensor::abs(){
     }
     tensor res_t(res,shape_);
     res_t.op_="abs";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);
     return res_t;
 }
 
@@ -133,7 +129,7 @@ tensor tensor::pow(ll power){
     }
     tensor res_t(res,shape_);
     res_t.op_="pow";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);
     return res_t;
 }
 
@@ -145,7 +141,7 @@ tensor tensor::exp(){
     }
     tensor res_t(res,shape_);
     res_t.op_="exp";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);
     return res_t;
 }
 
@@ -162,7 +158,7 @@ tensor tensor::sqrt(){
     }
     tensor res_t(res,shape_);
     res_t.op_="sqrt";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);
     return res_t;
 }
 
@@ -220,7 +216,7 @@ tensor tensor::neg(){
     }
     tensor res_t(res,shape_);
     res_t.op_="neg";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);
     return res_t;
 }
 
@@ -232,7 +228,7 @@ tensor tensor::scalar_add(double num){
     }
     tensor res_t(res,shape_);
     res_t.op_="scalar_add";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);
     return res_t;
 }
 
@@ -244,7 +240,7 @@ tensor tensor::scalar_sub(double num){
     }
     tensor res_t(res,shape_);
     res_t.op_="scalar_sub";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);
     return res_t;
 }
 
@@ -261,7 +257,7 @@ tensor tensor::scalar_div(double num){
     }
     tensor res_t(res,shape_);
     res_t.op_="scalar_div";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);
     return res_t;
 }
 
@@ -273,7 +269,7 @@ tensor tensor::scalar_mul(double num){
     }
     tensor res_t(res,shape_);
     res_t.op_="scalar_mul";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);
     return res_t;
 }
 
@@ -305,7 +301,7 @@ tensor tensor::tanh(){
     }
     tensor res_t(res,shape_);
     res_t.op_="tanh";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);
     return res_t;
 }
 
@@ -342,6 +338,6 @@ tensor tensor::softmax(){
     
     tensor res_t(res,shape_);
     res_t.op_="softmax";
-    res_t.parent_.push_back(std::make_shared<tensor>(*this));
+    res_t.parent_.push_back(this);
     return res_t;
 }
