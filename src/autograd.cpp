@@ -40,12 +40,29 @@ void backward::backward_(tensor& b){
             tensor& z = b;
 
             for (ll i = 0; i < x->grad_.size(); ++i) {
-                x->grad_[i] += z.grad_[i] / y->data_[i];
+                if (y->data_[i] != 0) {
+                    x->grad_[i] += z.grad_[i] / y->data_[i];
+                } else {
+                    x->grad_[i] += 0;
+                }
             }
 
-
             for (ll i = 0; i < y->grad_.size(); ++i) {
-                y->grad_[i] += z.grad_[i] * (-x->data_[i] / (y->data_[i] * y->data_[i]));
+                if (y->data_[i] != 0) {
+                    y->grad_[i] += z.grad_[i] * (-x->data_[i] / (y->data_[i] * y->data_[i]));
+                } else {
+                    y->grad_[i] += 0;
+                }
+            }
+        }
+        if(b.op_=="relu"){
+            for(ll i=0;i<parents[0]->grad_.size();i++){
+                if(parents[0]->data_[i]>0){
+                        parents[0]->grad_[i]+=b.grad_[i];
+                }
+                else{
+                    parents[0]->grad_[i]+=0;
+                }
             }
         }
     }
