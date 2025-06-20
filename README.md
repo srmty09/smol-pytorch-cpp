@@ -1,13 +1,12 @@
 # Smol-PyTorch-CPP
 
-A lightweight, header-only C++ deep learning library inspired by PyTorch, designed for educational purposes and small-scale machine learning projects.
+A lightweight C++ deep learning library inspired by PyTorch, designed for educational purposes and small-scale machine learning projects.
 
 ## Table of Contents
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [API Reference](#api-reference)
-- [Examples](#examples)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
 - [License](#license)
@@ -16,9 +15,12 @@ A lightweight, header-only C++ deep learning library inspired by PyTorch, design
 
 ### Core Tensor Operations
 - **Element-wise operations**: Addition, Subtraction, Multiplication, Division
-- **Mathematical functions**: Exponential, Square root, Power, Absolute value
+- **Mathematical functions**: Exponential, Square root, Power, Absolute value, and more
 - **Aggregation functions**: Sum, Mean, Maximum, Minimum
-- **Scalar operations**: Add, Subtract, Divide with scalars
+- **Scalar operations**: Add, Subtract, Divide, Multiply with scalars
+
+### Autograd
+- **Automatic differentiation**: Basic support for gradient calculation through backpropagation
 
 ### Activation Functions
 - **ReLU**: Rectified Linear Unit
@@ -26,68 +28,16 @@ A lightweight, header-only C++ deep learning library inspired by PyTorch, design
 - **Tanh**: Hyperbolic tangent
 - **Softmax**: Numerically stable softmax implementation
 
-### Advanced Features
-- **Gradient tracking**: Automatic differentiation support (planned)
-- **Memory management**: Efficient tensor copying and management
-- **Error handling**: Robust division by zero and edge case handling
-- **Numerical stability**: Overflow protection in mathematical operations
-
 ## Installation
 
 ### Prerequisites
 - C++17 compatible compiler (GCC 7+, Clang 5+, MSVC 2017+)
 - CMake 3.10 or higher
-- Make or Ninja build system
-
-### Installing CMake
-
-#### Ubuntu/Debian:
-```bash
-sudo apt update
-sudo apt install cmake build-essential
-```
-
-#### CentOS/RHEL/Fedora:
-```bash
-# CentOS/RHEL
-sudo yum install cmake gcc-c++
-
-# Fedora
-sudo dnf install cmake gcc-c++
-```
-
-#### macOS:
-```bash
-# Using Homebrew
-brew install cmake
-
-# Using MacPorts
-sudo port install cmake
-```
-
-#### Windows:
-```bash
-# Using Chocolatey
-choco install cmake
-
-# Using vcpkg
-vcpkg install cmake
-```
-
-#### From Source (if needed):
-```bash
-wget https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1.tar.gz
-tar -xzf cmake-3.28.1.tar.gz
-cd cmake-3.28.1
-./bootstrap
-make
-sudo make install
-```
 
 ### Build Instructions
 
 ```bash
-git clone https://github.com/srmty09/smol-pytorch-cpp
+git clone https://github.com/srmty09/smol-pytorch-cpp.git
 cd smol-pytorch-cpp
 mkdir build
 cd build
@@ -96,249 +46,128 @@ make
 ./smolpytorch
 ```
 
-**Note**: Make sure you're in the project root directory when running these commands. If the `build` directory already exists, you can skip the `mkdir build` step.
-
-### Testing Changes
-
-After making changes to the source code (like `main.cpp`, `src/tensor.cpp`, or `include/tensor.hpp`), you need to rebuild:
-
-```bash
-# From the build directory
-make
-
-# Or if you want to clean and rebuild from scratch
-make clean
-make
-
-# Run the tests
-./smolpytorch
-```
-
-**Quick Test Cycle:**
-```bash
-# Edit your files, then:
-make && ./smolpytorch
-```
-
-This will rebuild and run the tests in one command. If the build fails, you'll see the error messages.
-
 ## Quick Start
 
-### Basic Tensor Operations
+Here is a simple example demonstrating creating tensors, performing operations, and running backpropagation.
 
 ```cpp
 #include "tensor.hpp"
+#include "autograd.hpp"
 #include <iostream>
 
 int main() {
-    // Create tensors
-    std::vector<double> data = {1.0, 2.0, 3.0, 4.0};
-    std::vector<long long> shape = {2, 2};
+    // Create tensors that require gradients
+    tensor a({2.0, 3.0}, {1, 2}, true);
+    tensor b({4.0, 5.0}, {1, 2}, true);
+
+    // Perform some operations
+    tensor c = a.add(b);
+    tensor d = c.mul(a);
+    tensor e = d.sum();
+
+    // Perform backpropagation starting from the final tensor 'e'
+    // The gradient of 'e' with respect to itself is 1
+    std::vector<double> grad(e.size_, 1.0);
+    e.grad_ = grad;
     
-    tensor a(data, shape, true);  // Enable gradient tracking
-    tensor b(data, shape, true);
+    backward backprop;
+    backprop.backward_(e);
     
-    // Element-wise operations
-    tensor c = a.add(b);  // Addition
-    tensor d = a.mul(b);  // Multiplication
-    
-    // Mathematical functions
-    a.exp();    // Exponential
-    b.sqrt();   // Square root
-    
-    // Activation functions
-    tensor h = a.copy();
-    h.relu();   // ReLU activation
-    h.sigmoid(); // Sigmoid activation
-    h.tanh();   // Tanh activation
-    
+    // Print gradients of 'a'
+    std::cout << "Gradient of a: ";
+    for (double val : a.grad_) {
+        std::cout << val << " ";
+    }
+    std::cout << std::endl;
+
     return 0;
 }
-```
-
-### Neural Network Building (Planned)
-
-```cpp
-// Future implementation
-Sequential model({
-    new Linear(784, 128),
-    new ReLU(),
-    new Linear(128, 10),
-    new Softmax()
-});
-
-tensor output = model.forward(input);
 ```
 
 ## API Reference
 
-### Tensor Class
+### Tensor Class (`tensor.hpp`)
 
-#### Constructors
+#### Constructor
 ```cpp
-tensor();                                    // Null tensor
-tensor(vector<double> data, vector<ll> shape, bool need_grad = false);
+tensor(std::vector<double> data, std::vector<ll> shape, bool need_grad = false);
 ```
 
 #### Element-wise Operations
 ```cpp
-tensor add(tensor b);    // Element-wise addition
-tensor sub(tensor b);    // Element-wise subtraction
-tensor mul(tensor b);    // Element-wise multiplication
-tensor div(tensor b);    // Element-wise division
+tensor add(tensor& b);
+tensor sub(tensor& b);
+tensor mul(tensor& b);
+tensor div(tensor& b);
 ```
 
-#### Mathematical Functions
+#### Mathematical and Activation Functions
 ```cpp
-void exp();              // Exponential
-void sqrt();             // Square root
-void pow(ll power);      // Power function
-void abs();              // Absolute value
+tensor relu();
+tensor abs();
+tensor pow(ll power);
+tensor exp();
+tensor sqrt();
+tensor sigmoid();
+tensor tanh();
+tensor softmax();
+tensor neg();
 ```
 
-#### Activation Functions
+#### Scalar Operations
 ```cpp
-void relu();             // ReLU activation
-void sigmoid();          // Sigmoid activation
-void tanh();             // Tanh activation
-void softmax();          // Softmax (numerically stable)
+tensor scalar_sub(double num);
+tensor scalar_div(double num);
+tensor scalar_add(double num);
+tensor scalar_mul(double num);
 ```
 
 #### Aggregation Functions
 ```cpp
-double sum();            // Sum of all elements
-double mean();           // Mean of all elements
-double max();            // Maximum value
-double min();            // Minimum value
+double sum();
+double mean();
+double max();
+double min();
 ```
 
 #### Utility Functions
 ```cpp
-tensor copy();           // Deep copy
-vector<double> get_data(); // Get tensor data
+tensor copy();
+std::vector<double> get_data();
 ```
 
-## Examples
+### Autograd Class (`autograd.hpp`)
 
-### Example 1: Basic Tensor Operations
+The `backward` class is used to perform backpropagation.
+
+#### Methods
 ```cpp
-#include "tensor.hpp"
-
-int main() {
-    // Create tensors
-    vector<double> data1 = {1.0, 2.0, 3.0, 4.0};
-    vector<double> data2 = {2.0, 3.0, 4.0, 5.0};
-    vector<ll> shape = {2, 2};
-    
-    tensor a(data1, shape, true);
-    tensor b(data2, shape, true);
-    
-    // Perform operations
-    tensor c = a.add(b);
-    tensor d = a.mul(b);
-    
-    // Apply activation functions
-    c.relu();
-    d.sigmoid();
-    
-    return 0;
-}
+void backward_(tensor& t);
 ```
-
-### Example 2: Mathematical Operations
-```cpp
-#include "tensor.hpp"
-
-int main() {
-    vector<double> data = {-2.0, 0.0, 2.0, 4.0};
-    vector<ll> shape = {2, 2};
-    
-    tensor t(data, shape, false);
-    
-    // Chain mathematical operations
-    t.abs();     // Absolute value
-    t.pow(2);    // Square
-    t.sqrt();    // Square root
-    t.exp();     // Exponential
-    
-    return 0;
-}
-```
-
-### Example 3: Softmax with Large Values
-```cpp
-#include "tensor.hpp"
-
-int main() {
-    // Test numerically stable softmax
-    vector<double> data = {1000.0, 1001.0, 999.0, 1002.0};
-    vector<ll> shape = {2, 2};
-    
-    tensor t(data, shape, false);
-    t.softmax();  // Handles large values without overflow
-    
-    return 0;
-}
-```
+This method computes the gradient of the loss with respect to the tensors in the computation graph. It traverses the graph backwards from the given tensor `t`.
 
 ## Project Structure
-
 ```
 smol-pytorch-cpp/
-├── CMakeLists.txt              # CMake configuration
-├── main.cpp                    # Main test file
 ├── include/
-│   └── tensor.hpp             # Tensor class header
+│   ├── tensor.hpp
+│   └── autograd.hpp
 ├── src/
-│   └── tensor.cpp             # Tensor class implementation
+│   ├── tensor.cpp
+│   └── autograd.cpp
 ├── helper/
-│   ├── helper_functions.hpp   # Helper functions header
-│   └── helper_functions.cpp   # Helper functions implementation
-├── build/                     # Build directory (generated)
-└── README.md                  # This file
+│   ├── helper_functions.hpp
+│   └── helper_functions.cpp
+├── main.cpp
+├── CMakeLists.txt
+└── README.md
 ```
 
-## Key Implementation Details
-
-### Numerical Stability
-- **Softmax**: Implements numerically stable version using max subtraction
-- **Division by zero**: Graceful handling with warning messages
-- **Negative sqrt**: Skips negative values with warning
-
-### Memory Management
-- **Copy operations**: Deep copy implementation for independent tensors
-- **Gradient tracking**: Optional gradient vector initialization
-- **Stride calculation**: Efficient memory layout for multi-dimensional tensors
-
-### Error Handling
-- **Bounds checking**: Prevents segmentation faults
-- **Input validation**: Checks for valid tensor shapes and sizes
-- **Warning messages**: Informative output for edge cases
-
-## Planned Features
-
-- [ ] **Automatic Differentiation**: Backpropagation implementation
-- [ ] **Neural Network Layers**: Linear, Convolutional, Pooling layers
-- [ ] **Optimizers**: SGD, Adam, RMSprop
-- [ ] **Loss Functions**: MSE, Cross-entropy, Binary cross-entropy
-- [ ] **GPU Support**: CUDA/OpenCL integration
-- [ ] **Model Serialization**: Save/load trained models
-- [ ] **Advanced Operations**: Matrix multiplication, transpose, reshape
-
 ## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-### Development Setup
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Contributions are welcome! Please feel free to submit a pull request or open an issue.
 
 ## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## Acknowledgments
 
