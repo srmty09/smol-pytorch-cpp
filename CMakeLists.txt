@@ -17,5 +17,6 @@ add_executable(smolpytorch
     main.cpp
     src/tensor.cpp
     src/autograd.cpp
+    src/matrixmultiplication.cpp
     helper/helper_functions.cpp
 )

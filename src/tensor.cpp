@@ -16,11 +16,9 @@ tensor::tensor(vector<double> d,vector<ll> s,bool nd=true):data_(d),shape_(s){
     ll total_element=1;
     for(ll i=0;i<s.size();i++) total_element*=shape_[i];
     size_=total_element;
-    cout<<"Tensor created successfully"<<endl;
     stride_=calculating_stride(shape_);
     if(nd==true){
         grad_=vector<double>(d.size(),0.0);
-        cout<<"Gradient vector initialized successfully"<<endl;
     }
     else{
         cout<<"No gradient vector"<<endl;
@@ -35,7 +33,7 @@ tensor tensor::add(tensor& b){
     for(ll i=0;i<size_;i++){
         res.push_back(data_[i]+b.data_[i]);
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true);  // Enable gradients
     res_t.op_ = "+";
     res_t.parent_.push_back(this);
     res_t.parent_.push_back(&b);
@@ -48,7 +46,7 @@ tensor tensor::sub(tensor& b){
     for(ll i=0;i<size_;i++){
         res.push_back(data_[i]-b.data_[i]);
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true);  
     res_t.op_="-";
     res_t.parent_.push_back(this);
     res_t.parent_.push_back(&b);
@@ -62,7 +60,7 @@ tensor tensor::mul(tensor& b){
     for(ll i=0;i<size_;i++){
         res.push_back(data_[i]*b.data_[i]);
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true); 
     res_t.op_="*";
     res_t.parent_.push_back(this);
     res_t.parent_.push_back(&b);
@@ -75,12 +73,12 @@ tensor tensor::div(tensor& b){
     for(ll i=0;i<size_;i++){
         if(b.data_[i]==0){
             cout<<"Warning: Division by zero at index " << i << ", setting result to INF" << endl;
-            res.push_back(1e308); // Use a large number instead of returning null tensor
+            res.push_back(1e308); 
         } else {
             res.push_back(data_[i]/b.data_[i]);
         }
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true);  
     res_t.op_="/";
     res_t.parent_.push_back(this);
     res_t.parent_.push_back(&b);
@@ -98,9 +96,9 @@ tensor tensor::relu(){
             res.push_back(0);
         }
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true); 
     res_t.op_="relu";
-    res_t.parent_.push_back(this);  // Store pointer to original tensor
+    res_t.parent_.push_back(this);  
     return res_t;
 }
 
@@ -115,7 +113,7 @@ tensor tensor::abs(){
             res.push_back(-data_[i]);
         }
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true); 
     res_t.op_="abs";
     res_t.parent_.push_back(this);
     return res_t;
@@ -127,7 +125,7 @@ tensor tensor::pow(ll power){
     for(ll i=0;i<size_;i++){
         res.push_back(std::pow(data_[i],power));
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true); 
     res_t.op_="pow";
     res_t.parent_.push_back(this);
     return res_t;
@@ -139,7 +137,7 @@ tensor tensor::exp(){
     for(ll i=0;i<size_;i++){
         res.push_back(std::exp(data_[i]));
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true);  
     res_t.op_="exp";
     res_t.parent_.push_back(this);
     return res_t;
@@ -156,7 +154,7 @@ tensor tensor::sqrt(){
             res.push_back(std::sqrt(data_[i]));
         }
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true); 
     res_t.op_="sqrt";
     res_t.parent_.push_back(this);
     return res_t;
@@ -214,7 +212,7 @@ tensor tensor::neg(){
     for(ll i=0;i<size_;i++){
         res.push_back(-data_[i]);
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true); 
     res_t.op_="neg";
     res_t.parent_.push_back(this);
     return res_t;
@@ -226,7 +224,7 @@ tensor tensor::scalar_add(double num){
     for(ll i=0;i<size_;i++){
         res.push_back(num + data_[i]);
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true); 
     res_t.op_="scalar_add";
     res_t.parent_.push_back(this);
     return res_t;
@@ -238,7 +236,7 @@ tensor tensor::scalar_sub(double num){
     for(ll i=0;i<size_;i++){
         res.push_back(num - data_[i]);
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true);  
     res_t.op_="scalar_sub";
     res_t.parent_.push_back(this);
     return res_t;
@@ -255,7 +253,7 @@ tensor tensor::scalar_div(double num){
             res.push_back(1e308);
         }
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true);  
     res_t.op_="scalar_div";
     res_t.parent_.push_back(this);
     return res_t;
@@ -267,7 +265,7 @@ tensor tensor::scalar_mul(double num){
     for(ll i=0;i<size_;i++){
         res.push_back(num * data_[i]);
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true);  
     res_t.op_="scalar_mul";
     res_t.parent_.push_back(this);
     return res_t;
@@ -299,7 +297,7 @@ tensor tensor::tanh(){
     for(ll i = 0; i < size_; i++){
         res.push_back(std::tanh(data_[i]));
     }
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true);  
     res_t.op_="tanh";
     res_t.parent_.push_back(this);
     return res_t;
@@ -336,7 +334,7 @@ tensor tensor::softmax(){
         res.push_back(exp_data[i] / sum);
     }
     
-    tensor res_t(res,shape_);
+    tensor res_t(res,shape_,true);  
     res_t.op_="softmax";
     res_t.parent_.push_back(this);
     return res_t;

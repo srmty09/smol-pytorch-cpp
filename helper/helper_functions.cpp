@@ -11,7 +11,6 @@ vector<ll> calculating_stride(vector<ll> shape){
         element*=shape[i];
         stride_vec.push_back(element);
     }
-    cout<<"stride calculation successful"<<endl;
     return stride_vec;
 }
 

@@ -18,6 +18,7 @@ A lightweight C++ deep learning library inspired by PyTorch, designed for educat
 - **Mathematical functions**: Exponential, Square root, Power, Absolute value, and more
 - **Aggregation functions**: Sum, Mean, Maximum, Minimum
 - **Scalar operations**: Add, Subtract, Divide, Multiply with scalars
+- **Matrix operations**: Matrix multiplication with automatic shape validation
 
 ### Autograd
 - **Automatic differentiation**: Basic support for gradient calculation through backpropagation
